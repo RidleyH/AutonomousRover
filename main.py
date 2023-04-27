@@ -51,7 +51,7 @@ def rotate_rover(heading_change):
     elif angle_diff < -180:
         angle_diff += 360
     
-    # calculate the direction and speed of the turn
+    # calculate the direction  of the turn
     direction = 1 if angle_diff < 0 else -1
     lidar_index = 1 if angle_diff < 0 else 28
     
@@ -63,82 +63,87 @@ def rotate_rover(heading_change):
             angle_diff -= 360
         elif angle_diff < -180:
             angle_diff += 360
-        # print([max(min(x, 15), 0) for x in rover.laser_distances][lidar_index])
         sleep(0.01)
     
     # stop the rover when the desired heading is reached
     rover.send_command(0, 0)
 
-def moveRover(move_distance):
+def move_rover(move_distance):
+    # Get current position of the rover
     x1, y1 = rover.x, rover.y
+
+    # Move rover while it is less than the target distance
     while (math.sqrt((x1 - rover.x)**2 + (y1 - rover.y)**2) < move_distance):
         lidar_distances = [max(min(x, 15), 0) for x in rover.laser_distances]
         danger_distances = [x1_elem - x2_elem for (x1_elem, x2_elem) in zip(lidar_distances, safety_distances)]
-        # print(danger_distances)
+        
+        # If the minimum danger distance is less than zero, avoid obstacle
         if ((min(danger_distances)) < 0):
-            # print("DANGER")
             if danger_distances.index(min(danger_distances)) < 14.5:
+                # Avoid obstacle to the left
                 while ((min([x1_elem - x2_elem for (x1_elem, x2_elem) in zip([max(min(x, 15), 0) for x in rover.laser_distances], safety_distances)])) < 0) & ([max(min(x, 15), 0) for x in rover.laser_distances][28] > 0.6):
                     rover.send_command(-1,1)
-                    # print([max(min(x, 15), 0) for x in rover.laser_distances][28])
                     sleep(0.01)
             else:
+                # Avoid obstacle to the right
                 while ((min([x1_elem - x2_elem for (x1_elem, x2_elem) in zip([max(min(x, 15), 0) for x in rover.laser_distances], safety_distances)])) < 0) & ([max(min(x, 15), 0) for x in rover.laser_distances][1] > 0.6):
                     rover.send_command(1,-1)
-                    # print([max(min(x, 15), 0) for x in rover.laser_distances][1])
                     sleep(0.01)
+            # Stop rover after avoiding obstacle
             rover.send_command(0,0)
-            # print("safe")
             continue
+
+        # Move the rover forward
         rover.send_command(5, 5)
         sleep(0.01)
+
+    # Stop rover after reaching target distance
     rover.send_command(0,0)
     return
 
 
+# Create new river object
 rover = Rover()
-rover.send_command(0, 0)
 
-# Load the training data from the CSV file
-train_data = pd.read_csv('training_data_final.csv',header=None)
-
+# Initialize lidar data and wait until all 30 distances are received
 lidar_data = [max(min(x, 15), 0) for x in rover.laser_distances]
 while len(lidar_data) != 30:
     lidar_data = [max(min(x, 15), 0) for x in rover.laser_distances]
 
-# target_x = random.randint(20, 25)
-target_x = 15
-target_y = random.randint(-10, 10)
-print('Random Target: (' + str(target_x) + ', ' + str(target_y) + ')')
-
+# Calculate safety distances 
 base = [abs(x*180/29 - 90)*math.pi/180 for x in list(range(0,30))]
 front_distances = [0.6/math.cos(x) for x in base[7:23]]
 right_distances = [(0.6)/math.sin(x) for x in base[0:7]]
 left_distances = [(0.6)/math.sin(x) for x in base[23:30]]
 safety_distances = right_distances + front_distances + left_distances
 
-face_target(target_x, target_y)
+# Load the neural network model
 model = joblib.load("model.joblib")
-while math.sqrt((target_x - rover.x)**2 + (target_y - rover.y)**2) > 1:
-    lidar_data = [max(min(x, 15), 0) for x in rover.laser_distances]
-    target_heading = calculate_target_heading(target_x, target_y)
-    all_data = [target_heading]+lidar_data
-    model_heading = model.predict([all_data])[0]
-    print('New Heading: ' + str(round(model_heading, 2)))
-    rotate_rover(model_heading - 90)
-    moveRover(1)
 
+# Repeat 10 times
+for i in range(10):
+    coefficient = (-1)**i
 
-# time_total = 0
-# while (time_total < 60):
-#     lidar_distances = [max(min(x, 15), 0) for x in rover.laser_distances]
-#     danger_distances = [x1_elem - x2_elem for (x1_elem, x2_elem) in zip(lidar_distances, safety_distances)]
-#     # print(danger_distances)
-#     if ((min(danger_distances)) < 0):
-#         print("DANGER")
-#         continue
-#     print("safe")
-#     sleep(0.01)
-#     time_total += 0.01
+    # Set a new random target
+    # target_x = random.randint(20, 25)
+    target_x = 13 * coefficient
+    target_y = random.randint(-8, 8)
+    print('New Random Target: (' + str(target_x) + ', ' + str(target_y) + ')')
 
-# moveRover(5)
+    # Face the new target
+    face_target(target_x, target_y)
+
+    # Move towards the target while adjusting heading based on the neural network model
+    while math.sqrt((target_x - rover.x)**2 + (target_y - rover.y)**2) > 1:
+        # Update lidar data and calculate the target heading
+        lidar_data = [max(min(x, 15), 0) for x in rover.laser_distances]
+        target_heading = calculate_target_heading(target_x, target_y)
+
+        # Combine the target heading and lidar data and decide the new heading with the model
+        all_data = [target_heading]+lidar_data
+        model_heading = model.predict([all_data])[0]
+        print('New Heading: ' + str(round(model_heading, 2)))
+
+        # rotate and move the rover based on the new heading
+        rotate_rover(model_heading - 90)
+        move_rover(1)
