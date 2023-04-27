@@ -13,16 +13,13 @@ rover = Rover()
 rover.send_command(0, 0)
 
 
-# Create the GUI window
 root = tk.Tk()
 root.title("Testing Environment")
 
-# Maximize the window to fill the screen
 w, h = root.winfo_screenwidth(), root.winfo_screenheight()
 root.geometry("%dx%d+0+0" % (window_width_scale*w, window_height_scale*h))
 root.update_idletasks()
 
-# Calculate canvas dimensions and origin
 canvas_width = root.winfo_width()
 canvas_height = root.winfo_height()
 origin_x = canvas_width / 2
@@ -33,11 +30,9 @@ RADIUS = RADIUS_METER*15
 NUM_LINES = 30
 degree_sign = u'\N{DEGREE SIGN}'
 
-# Create the canvas for drawing
 canvas = tk.Canvas(root, width=canvas_width, height=canvas_height)
 canvas.pack()
 
-# Draw the semicircle
 canvas.create_arc(origin_x - RADIUS, origin_y - RADIUS, origin_x + RADIUS, origin_y + RADIUS,
                   start=0, extent=180, style=tk.ARC, width=2)
 
@@ -55,16 +50,13 @@ target_heading = -1*math.atan((target_x - rover.x)/(target_y - rover.y))*180/mat
 if target_heading < 0:
     target_heading += 180
 target_heading -= rover.heading
-# print(target_heading)
 target_heading = target_heading*math.pi/180
 
 def faceTarget():
-    # calculate the angle to the target in radians
     dx = target_x - rover.x
     dy = target_y - rover.y
     angle_to_target = math.atan2(dy, dx)
     
-    # calculate the change in heading to face the target
     heading_diff = angle_to_target - math.radians(rover.heading)
     if heading_diff > math.pi:
         heading_diff -= 2 * math.pi
@@ -78,7 +70,6 @@ while len(lidar_data) != 30:
     lidar_data = [max(min(x, 15), 0) for x in rover.laser_distances]
 buttonFunction_dict = {}    
 button_dict = {}
-# Draw the blue lines
 for i in range(NUM_LINES):
     line_length = lidar_data[i] * RADIUS_METER
     angle = (math.pi / (NUM_LINES-1)) * i
@@ -97,11 +88,9 @@ for i in range(NUM_LINES):
             target_heading = -1*math.atan((target_x - rover.x)/(target_y - rover.y))*180/math.pi
             if target_heading < 0:
                 target_heading += 180
-            # print(target_heading)
             target_heading -= rover.heading
             target_heading = target_heading*math.pi/180
             canvas.coords(targetLine, origin_x, origin_y, origin_x + RADIUS_METER * 17 * math.cos(target_heading), origin_y - RADIUS_METER * 17 * math.sin(target_heading))
-            # print(target_heading)
             return
 
         def updateLidarLines():
@@ -117,11 +106,8 @@ for i in range(NUM_LINES):
             return
         
         def saveData(row_list):
-            # open CSV file for appending
             with open('training_data.csv', 'a') as csvfile:
-                # create CSV writer object
                 writer = csv.writer(csvfile)
-                # write new row to CSV file
                 writer.writerow(row_list)
             return
         
@@ -141,7 +127,6 @@ for i in range(NUM_LINES):
         target_y = math.cos(random_angle) * 30
         print('Target: ' + str(target_x) + ',' + str(target_y))
         updateLidarLines()
-        # print(target_heading)
         updateTargetLine()
         canvas.update_idletasks()
     buttonFunction_dict.update({i:f})
@@ -150,6 +135,5 @@ for i in range(NUM_LINES):
 
 targetLine = canvas.create_line(origin_x, origin_y, origin_x + RADIUS_METER * 17 * math.cos(target_heading), origin_y - RADIUS_METER * 17 * math.sin(target_heading), fill='green', width=2)
 
-# Start the GUI event loop
 root.mainloop()
 
