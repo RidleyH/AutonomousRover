@@ -1,6 +1,6 @@
 # AutonomousRover
 
-This project consists of an autonomous rover controlled by a Python script called `main.py`. The rover is simulated in the Gazebo simulation environment, and it can be interacted with using Python.
+This project consists of an autonomous rover controlled by a Python script called `main.py`. The rover is simulated in the Gazebo simulation environment, and it can be interacted with using Python 2.7.17.
 
 ## Installation
 
