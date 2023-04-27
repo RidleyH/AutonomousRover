@@ -80,12 +80,12 @@ def move_rover(move_distance):
         # If the minimum danger distance is less than zero, avoid obstacle
         if ((min(danger_distances)) < 0):
             if danger_distances.index(min(danger_distances)) < 14.5:
-                # Avoid obstacle to the left
+                # Avoid obstacle to the right
                 while ((min([x1_elem - x2_elem for (x1_elem, x2_elem) in zip([max(min(x, 15), 0) for x in rover.laser_distances], safety_distances)])) < 0) & ([max(min(x, 15), 0) for x in rover.laser_distances][28] > 0.6):
                     rover.send_command(-1,1)
                     sleep(0.01)
             else:
-                # Avoid obstacle to the right
+                # Avoid obstacle to the left
                 while ((min([x1_elem - x2_elem for (x1_elem, x2_elem) in zip([max(min(x, 15), 0) for x in rover.laser_distances], safety_distances)])) < 0) & ([max(min(x, 15), 0) for x in rover.laser_distances][1] > 0.6):
                     rover.send_command(1,-1)
                     sleep(0.01)
