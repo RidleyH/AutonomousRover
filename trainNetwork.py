@@ -13,7 +13,7 @@ y_train = train_data.iloc[:, 31].values
 # Split data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.2)
 
-# Create a neural network with 2 hidden layers of 16 neurons each
+# Initialize a multilayer perceptron regressor model with 16 neurons in the hidden layer, using the lbfgs solver for optimization, alpha regularization parameter of 10^-4, a maximum of 10,000 iterations and a fixed random state for reproducibility.
 model = MLPRegressor(hidden_layer_sizes=(16), max_iter=10000, solver='lbfgs', alpha=10**(-4), random_state=42)
 
 # Train the neural network on the training data
