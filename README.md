@@ -1,6 +1,6 @@
 # AutonomousRover
 
-AutonomousRover is a Python program that navigates a rover autonomously through a field of obstacles in a simulated environment using LiDAR and positioning data. This project is built on top of the Gazebo simulation environment and uses the qset_lib Python library to interact with it.
+AutonomousRover is a Python program that navigates a rover autonomously through a field of obstacles in a simulated environment using LiDAR and positioning data. This project is built for use in the Gazebo simulation environment and uses the qset_lib Python library to interact with the simulation.
 
 ## Project Structure
 
