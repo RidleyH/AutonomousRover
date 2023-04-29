@@ -81,7 +81,7 @@ def save_data(row_list):
 
 # Create a Tkinter root object and set its title
 root = tk.Tk()
-root.title("Testing Environment")
+root.title("Training Environment")
 # Define the scale factors for the window dimensions and retrieve the screen width and height
 window_width_scale = 1
 window_height_scale = 1
@@ -119,16 +119,6 @@ rover = Rover()
 # Generate random target coordinates
 target_x = random.randint(50, 60)
 target_y = random.randint(-20, 20)
-
-# Calculate the target heading angle in degrees
-target_heading = -1*math.atan((target_x - rover.x)/(target_y - rover.y))*180/math.pi
-# Normalize the target heading angle to be between 0 and 180 degrees
-if target_heading < 0:
-    target_heading += 180
-# Adjust the target heading angle based on the current heading of the rover
-target_heading -= rover.heading
-target_heading = target_heading*math.pi/180
-
 # Print the target coordinates to the console
 print('Target: ' + str(target_x) + ',' + str(target_y))
 
@@ -155,7 +145,7 @@ for i in range(NUM_LINES):
     # Add the line to the line dictionary with its corresponding index
     line_dict.update({i:canvas.create_line(x1, y1, x2, y2, fill='blue', width=2)})
 
-    # Create a button function for each line that moves the rover and updates the canvas
+    # Create a button function for each line that saves the user input, moves the rover, and updates the canvas
     def f(i=i):
         lidar_data = [max(min(x, 15), 0) for x in rover.laser_distances]
         target_heading = -1*math.atan((target_x - rover.x)/(target_y - rover.y))*180/math.pi
@@ -168,6 +158,7 @@ for i in range(NUM_LINES):
         move_rover(1)
         update_lidar_lines()
         update_target_line()
+        canvas.update_idletasks()
 
     # Add the button function to the button function dictionary with its corresponding index
     buttonFunction_dict.update({i:f})
@@ -179,6 +170,14 @@ for i in range(NUM_LINES):
     # Add the button to the canvas at the end of the line
     canvas.create_window(origin_x + RADIUS_METER * 15.5 * math.cos(angle), origin_y - RADIUS_METER * 15.5 * math.sin(angle), window=button_dict[i])
 
+# Calculate the target heading angle in degrees
+target_heading = -1*math.atan((target_x - rover.x)/(target_y - rover.y))*180/math.pi
+# Normalize the target heading angle to be between 0 and 180 degrees
+if target_heading < 0:
+    target_heading += 180
+# Adjust the target heading angle based on the current heading of the rover
+target_heading -= rover.heading
+target_heading = target_heading*math.pi/180
 # Draw the target line on the canvas
 targetLine = canvas.create_line(origin_x, origin_y, origin_x + RADIUS_METER * 17 * math.cos(target_heading), origin_y - RADIUS_METER * 17 * math.sin(target_heading), fill='green', width=2)
 
