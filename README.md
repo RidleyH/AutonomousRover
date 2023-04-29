@@ -13,7 +13,7 @@ This project consists of a rover controlled autonomously by a Python script call
 
 The rover is controlled by a neural network that was trained on human pathfinding data in the `training_final_data.csv` file. This CSV file was created using two other scripts: `mobile_data_collection.py` and `stationary_dat_collection.py`. These scripts open up a GUI for the user to control the rover, allowing them to collect data on the user's inputs in given situtations.
 
-The `trainNetwork.py` script uses scikit-learn to create, train, and save the neural network to a file called `model.joblib`.
+The `train_network.py` script uses scikit-learn to create, train, and save the neural network to a file called `model.joblib`.
 
 The `main.py` script is the main control script for the rover. It loads the neural network from the `model.joblib` file and controls the rover's movements based on the output of the neural network.
 
