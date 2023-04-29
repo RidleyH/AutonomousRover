@@ -120,30 +120,26 @@ safety_distances = right_distances + front_distances + left_distances
 # Load the neural network model
 model = joblib.load("model.joblib")
 
-# Repeat 10 times
-for i in range(10):
-    coefficient = (-1)**i
 
-    # Set a new random target
-    # target_x = random.randint(20, 25)
-    target_x = 13 * coefficient
-    target_y = random.randint(-8, 8)
-    print('New Random Target: (' + str(target_x) + ', ' + str(target_y) + ')')
+# Set a new random target
+target_x = random.randint(20, 25)
+target_y = random.randint(-8, 8)
+print('New Random Target: (' + str(target_x) + ', ' + str(target_y) + ')')
 
-    # Face the new target
-    face_target(target_x, target_y)
+# Face the new target
+face_target(target_x, target_y)
 
-    # Move towards the target while adjusting heading based on the neural network model
-    while math.sqrt((target_x - rover.x)**2 + (target_y - rover.y)**2) > 1:
-        # Update lidar data and calculate the target heading
-        lidar_data = [max(min(x, 15), 0) for x in rover.laser_distances]
-        target_heading = calculate_target_heading(target_x, target_y)
+# Move towards the target while adjusting heading based on the neural network model until 1 meter away from target
+while math.sqrt((target_x - rover.x)**2 + (target_y - rover.y)**2) > 1:
+    # Update lidar data and calculate the target heading
+    lidar_data = [max(min(x, 15), 0) for x in rover.laser_distances]
+    target_heading = calculate_target_heading(target_x, target_y)
 
-        # Combine the target heading and lidar data and decide the new heading with the model
-        all_data = [target_heading]+lidar_data
-        model_heading = model.predict([all_data])[0]
-        print('New Heading: ' + str(round(model_heading, 2)))
+    # Combine the target heading and lidar data and decide the new heading with the model
+    all_data = [target_heading]+lidar_data
+    model_heading = model.predict([all_data])[0]
+    print('New Heading: ' + str(round(model_heading, 2)))
 
-        # rotate and move the rover based on the new heading
-        rotate_rover(model_heading - 90)
-        move_rover(1)
+    # rotate and move the rover based on the new heading
+    rotate_rover(model_heading - 90)
+    move_rover(1)
