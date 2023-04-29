@@ -1,28 +1,21 @@
 # AutonomousRover
 
-This project consists of a rover controlled autonomously by a Python script called `main.py`. The rover is simulated in the Gazebo simulation environment, and can be interacted with using Python 2.7.17.
+AutonomousRover is a Python program that navigates a rover autonomously through a field of obstacles in a simulated environment using LiDAR and positioning data. This project is built on top of the Gazebo simulation environment and uses the qset_lib Python library to interact with it.
 
-## Installation
+## Project Structure
 
-1. Clone this repository using `git clone https://github.com/RidleyH/AutonomousRover.git`
-2. Install the required dependencies listed above.
-3. Navigate to the project directory using `cd autonomousrover`.
-4. Run the `main.py` script using `python main.py`.
+The project consists of several files:
 
-## Project Overview
+- `mobile_data_collection.py`: opens a GUI in which a human user only sees information available to the rover through the LiDAR sensors and heading data. The user can control the rover through the obstacles towards randomly assigned target coordinates. Each time the user inputs a new direction for the rover to travel in, the GUI saves all of the LiDAR and positioning data to the `training_data.csv` file.
+- `stationary_data_collection.py`: opens a GUI in which a human user only sees information available to the rover through the LiDAR sensors and heading data. The user can decide the rover's next heading given a set of obstacles. Each time the user inputs a direction for the rover to travel in, the GUI saves all of the LiDAR and positioning data to the `training_data.csv` file and randomly assigns new target coordinates. The rover does not move and sees the exact same environment every iteration. This strategy is useful for addressing specific situations in which the existing neural network malfunctions and requires additional training.
+- `train_network.py`: uses the human user data stored in the `training_data.csv` file to train a neural network using scikit-learn and saves it to the `model.joblib` file. The neural network takes an input of the difference from the rover's current heading to the heading towards the target as well as 30 inputs of all LiDAR values, and returns an output of the recommended next heading for the rover.
+- `main.py`: generates random target coordinates, loads the `model.joblib` file as the neural network, and maneuvers the rover towards it moving 1 meter at a time, reevaluating the rover's heading using the neural network each time.
 
-The rover is controlled by a neural network that was trained on human pathfinding data in the `training_final_data.csv` file. This CSV file was created using two other scripts: `mobile_data_collection.py` and `stationary_dat_collection.py`. These scripts open up a GUI for the user to control the rover, allowing them to collect data on the user's inputs in given situtations.
+## Credits
 
-The `train_network.py` script uses scikit-learn to create, train, and save the neural network to a file called `model.joblib`.
-
-The `main.py` script is the main control script for the rover. It loads the neural network from the `model.joblib` file and controls the rover's movements based on the output of the neural network.
-
-## Usage
-
-Once you have installed the required dependencies, cloned the repository and opened Gazebo, navigate to the project directory and run `python main.py`. The rover will begin to move based on the output of the neural network.
-
-You can also modify the code in the `main.py` script to change the behavior of the rover. For example, you could modify the neural network or change the rover's target coordinates.
+This project was developed by Ridley Horton as part of a semester long engineering project. This project uses the qset_lib Python library developed by the Queens Space Engineering Team specifically for interacting with Gazebo using Python.
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for more information.
+This project is licensed under the MIT License.
+
